@@ -52,7 +52,7 @@ def gethostdata(session):
 		
 	return hArray	
 
-def formatdarray(data, order, minspace=4, CSV=False):
+def formatdarray(data, order, CSV, minspace=4):
 	
 	string_data = [[str(row[col]) for col in order] for row in data]
 	
@@ -60,9 +60,9 @@ def formatdarray(data, order, minspace=4, CSV=False):
 	
 	if CSV:
 		
-		formatstr = (',').join(string for string in row for row in string_data)
+		csv = [','.join(row) for row in string_data]
 		
-		return formatstr
+		return '\n'.join(line for line in csv)
 		
 	else:
 	
@@ -89,7 +89,7 @@ def main():
 		syntax()
 		sys.exit(1) 
 	minspace = 4
-	csv = False
+	CSV = False
 	mode = "name"
 	for opt, arg in myopts:
 		if opt in ("-h", "--help"):
@@ -110,6 +110,6 @@ def main():
 	
 	headings = defineheadings(mode)
 	
-	print formatdarray(hosts, headings, minspace, CSV)
+	print formatdarray(hosts, headings, CSV, minspace=4)
 	
 main()
