@@ -52,17 +52,25 @@ def gethostdata(session):
 		
 	return hArray	
 
-def formatdarray(data, order, minspace=4):
+def formatdarray(data, order, minspace=4, CSV=False):
 	
 	string_data = [[str(row[col]) for col in order] for row in data]
 	
 	string_data.insert(0, [name for name in order])
 	
-	colwidths = [max(len(row[col]) for row in string_data) for col in range(len(order))]
+	if CSV:
+		
+		formatstr = (',').join(string for string in row for row in string_data)
+		
+		return formatstr
+		
+	else:
 	
-	formatstr = (' ' * minspace).join('%%-%ds' % width for width in colwidths)
+		colwidths = [max(len(row[col]) for row in string_data) for col in range(len(order))]
 	
-	return '\n'.join(formatstr % tuple(line) for line in string_data)
+		formatstr = (' ' * minspace).join('%%-%ds' % width for width in colwidths)
+	
+		return '\n'.join(formatstr % tuple(line) for line in string_data)
 
 def defineheadings(mode):
 
@@ -92,7 +100,7 @@ def main():
 		elif opt in ("-n", "--name"):
 			mode = "name"
 		elif opt in ("-c", "--csv"):
-			csv = True 
+			CSV = True 
 	
 	session = XenAPI.xapi_local()
 	
@@ -102,6 +110,6 @@ def main():
 	
 	headings = defineheadings(mode)
 	
-	print formatdarray(hosts, headings)
+	print formatdarray(hosts, headings, minspace, CSV)
 	
 main()
