@@ -10,20 +10,24 @@
 # Desc: Added formatarray() and made modifications to gethostdata()
 # Ver. 0.1.1
 # Desc: Added Tot mem and Free mem
+# Date: 12/21/2013
+# Ver. 0.2.0
+# Desc: Added CSV output
 
 import XenAPI
-import sys, getopt	
-
+import sys, getopt
+from XAPIlib import *
 
 def syntax():
 	print "lshost version 0.0.1"
 	print ""
 	print "Syntax: lshosts [options]"
-	print "-h This help text"
-	print "-u Show UUIDs"
-	print "-n Show Names (default)"
-	print "-c output CSV"
-	print ""
+	print "-h --help This help text"
+	print "-u --uuid Show UUIDs"
+	print "-n --name Show Names (default)"
+	print "-c --csv output CSV"
+	print "-w --wspace number of whitespaces between columns"
+	print "-p --password root password"
 	
 def gethostdata(session):		
 	
@@ -52,25 +56,6 @@ def gethostdata(session):
 		
 	return hArray	
 
-def formatdarray(data, order, CSV, minspace=4):
-	
-	string_data = [[str(row[col]) for col in order] for row in data]
-	
-	string_data.insert(0, [name for name in order])
-	
-	if CSV:
-		
-		csv = [','.join(row) for row in string_data]
-		
-		return '\n'.join(line for line in csv)
-		
-	else:
-	
-		colwidths = [max(len(row[col]) for row in string_data) for col in range(len(order))]
-	
-		formatstr = (' ' * minspace).join('%%-%ds' % width for width in colwidths)
-	
-		return '\n'.join(formatstr % tuple(line) for line in string_data)
 
 def defineheadings(mode):
 
@@ -83,7 +68,7 @@ def defineheadings(mode):
 
 def main():
 	try:
-		myopts, args = getopt.getopt(sys.argv[1:], "hunc",["help", "uuid", "name", "csv"])
+		myopts, args = getopt.getopt(sys.argv[1:], "huncw:",["help", "uuid", "name", "csv", "wspace"])
 	except getopt.GetoptError:
 		print "Unknown options"
 		syntax()
@@ -101,15 +86,19 @@ def main():
 			mode = "name"
 		elif opt in ("-c", "--csv"):
 			CSV = True 
-	
+		elif opt in ("-w", "--wspace"):
+			minspace = int(arg)
+			
 	session = XenAPI.xapi_local()
 	
-	session.xenapi.login_with_password("root", "Chopper1man")
+	session.xenapi.login_with_password("", "")
 	
 	hosts = gethostdata(session)
 	
 	headings = defineheadings(mode)
 	
-	print formatdarray(hosts, headings, CSV, minspace=4)
+	print formatdarray(hosts, headings, CSV, minspace)
+	
+	session.xenapi.session.logout()
 	
 main()
