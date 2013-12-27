@@ -5,6 +5,10 @@
 # Date: 12/20/2013 
 # Ver. 0.0.1
 # Author: Matthew Spah
+# Date: 12/26/2013
+# Ver. 0.0.2
+# Author: Matthew Spah
+
 
 import XenAPI
 import sys, getopt
@@ -14,7 +18,7 @@ def syntax():
 	print "lsvdis version 0.1.1"
 	print ""
 	print "Syntax: lshosts [options]"
-	print "-h This help text"
+	print " -h This help text"
 	print " -u - shows VDI UUID, Size, SR UUID, SR type, VM UUID and VM device"
 	print "	-n - shows VDI Name, Size, SR Name, SR type, VM Name and VM device"
 	print "	-m - shows VDI UUID, Size, SR Name, SR type, VM Name and VM device"
@@ -27,35 +31,86 @@ def syntax():
 	
 	
 def getvdidata(session):
-	vdis = session.xenapi.VDI.get_all_records()
-	SRs = session.xenapi.SR.get_all_records()
-	vbds = session.xenapi.VBD.get_all_records()
 	
-	
+	# returns vdi list
+	vdis = session.xenapi.VDI.get_all()
 	vdiArray = []
+	
 	
 	for vdi in vdis:
 		
+		vdivbds = session.xenapi.VDI.get_VBDs(vdi)
+		vdisr = session.xenapi.VDI.get_SR(vdi)
+		vdisize = round(float(session.xenapi.VDI.get_virtual_size(vdi)) / 1024 ** 3, 2)
 		
+		# if vdi has more than one vbd, loop through vbd's and create a list for each vbd
+		if len(vdivbds) > 1:
 		
-		data = {
-			"UUID":		vdis[vdi]['uuid'],
-			"Size":		vdis[vdi]['virtual_size'],
-			
-		
-		
-		
-		}
+			for vbd in vdivbds:
+				vdivm = session.xenapi.VBD.get_VM(vbd)
+				data = {
+					'UUID':		session.xenapi.VDI.get_uuid(vdi),
+					'Name':		session.xenapi.VDI.get_name_label(vdi),
+					'Size':		str(vdisize) + "GBs",
+					'SR UUID':	session.xenapi.SR.get_uuid(vdisr),
+					'SR Name':	session.xenapi.SR.get_name_label(vdisr),
+					'SR Type':	session.xenapi.SR.get_type(vdisr),
+					'VM UUID':	session.xenapi.VM.get_uuid(vdivm),
+					'VM Name':	session.xenapi.VM.get_name_label(vdivm),
+					'VM Dev':	session.xenapi.VBD.get_userdevice(vbd),
+				}
+				vdiArray.append(data)
+				
+		elif len(vdivbds) == 1:
+			vdivm = session.xenapi.VBD.get_VM(vdivbds[0])
+			data = {
+				'UUID':		session.xenapi.VDI.get_uuid(vdi),
+				'Name':		session.xenapi.VDI.get_name_label(vdi),
+				'Size':		str(vdisize) + "GBs",
+				'SR UUID':	session.xenapi.SR.get_uuid(vdisr),
+				'SR Name':	session.xenapi.SR.get_name_label(vdisr),
+				'SR Type':	session.xenapi.SR.get_type(vdisr),
+				'VM UUID':	session.xenapi.VM.get_uuid(vdivm),
+				'VM Name':	session.xenapi.VM.get_name_label(vdivm),
+				'VM Dev':	session.xenapi.VBD.get_userdevice(vdivbds[0])
+			}
+			vdiArray.append(data)
+
+		else:
+			data = {
+				'UUID':		session.xenapi.VDI.get_uuid(vdi),
+				'Name':		session.xenapi.VDI.get_name_label(vdi),
+				'Size':		str(vdisize) + "GBs",
+				'SR UUID':	session.xenapi.SR.get_uuid(vdisr),
+				'SR Name':	session.xenapi.SR.get_name_label(vdisr),
+				'SR Type':	session.xenapi.SR.get_type(vdisr),
+				'VM UUID':	"-",
+				'VM Name':	"-",
+				'VM Dev':	"-",
+			}
+			vdiArray.append(data)
+
+	return vdiArray
+
+def defineheadings(mode):
+
+	if mode == "uuid":
+		headings = ('UUID', 'Size', 'SR UUID', 'SR Type', 'VM UUID', 'VM Dev')
+	elif mode == "name":
+		headings = ('Name', 'Size', 'SR Name', 'SR Type', 'VM Name', 'VM Dev')
+	elif mode == "mix":
+		headings = ('UUID', 'Size', 'SR Name', 'SR Type', 'VM Name', 'VM Dev')
 	
+	return headings
 
 def main():
 	try:
-		myopts, args = getopt.getopt(sys.argv[1:], "hunmw:",["help", "uuid", "name", "mix", "wspace"])
+		myopts, args = getopt.getopt(sys.argv[1:], "hcunmw:",["help", "csv", "uuid", "name", "mix", "wspace"])
 	except getopt.GetoptError:
 		print "Unknown options"
 		syntax()
 		sys.exit(1)
-	minspace = 4
+	minspace = 3
 	CSV = False
 	mode = "name"
 	for opt, arg in myopts:
@@ -79,7 +134,11 @@ def main():
 
 	vdidata = getvdidata(session)
 	
-	print vdidata
+	headings = defineheadings(mode)
+	
+	print formatdarray(vdidata, headings, CSV, minspace)
+	
+
 
 
 main()

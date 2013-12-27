@@ -56,7 +56,6 @@ def gethostdata(session):
 		
 	return hArray	
 
-
 def defineheadings(mode):
 
 	if mode == "name":
