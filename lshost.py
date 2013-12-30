@@ -38,8 +38,8 @@ def gethostdata(session):
 	for x in records:
 		
 		metobjuuid = records[x]['metrics']
-		totmem = round(float(metrics[metobjuuid]['memory_total']) / 1024 ** 3, 2)
-		freemem = round(float(metrics[metobjuuid]['memory_free']) / 1024 ** 3, 2)
+		totmem = float(metrics[metobjuuid]['memory_total'])
+		freemem = float(metrics[metobjuuid]['memory_free']) 
 		
 		data = {
 			"UUID":			records[x]['uuid'],
@@ -47,8 +47,8 @@ def gethostdata(session):
 			"Active-VMs":	len(records[x]['resident_VMs']),
 			"CPU-Model":	records[x]['cpu_info']['modelname'],
 			"CPUs":			len(records[x]['host_CPUs']),
-			'Tot Mem':		str(totmem) + "GB",
-			'Free Mem':		str(freemem) + "GB",
+			'Tot Mem':		sizeof_fmt(totmem),
+			'Free Mem':		sizeof_fmt(freemem),
 			"Ver":			records[x]['software_version']['platform_version'],
 			"Network":		records[x]['software_version']['network_backend'],
 		}

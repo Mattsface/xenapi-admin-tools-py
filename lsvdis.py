@@ -36,12 +36,11 @@ def getvdidata(session):
 	vdis = session.xenapi.VDI.get_all()
 	vdiArray = []
 	
-	
 	for vdi in vdis:
 		
 		vdivbds = session.xenapi.VDI.get_VBDs(vdi)
 		vdisr = session.xenapi.VDI.get_SR(vdi)
-		vdisize = round(float(session.xenapi.VDI.get_virtual_size(vdi)) / 1024 ** 3, 2)
+		vdisize = float(session.xenapi.VDI.get_virtual_size(vdi))
 		
 		# if vdi has more than one vbd, loop through vbd's and create a list for each vbd
 		if len(vdivbds) > 1:
@@ -51,7 +50,7 @@ def getvdidata(session):
 				data = {
 					'UUID':		session.xenapi.VDI.get_uuid(vdi),
 					'Name':		session.xenapi.VDI.get_name_label(vdi),
-					'Size':		str(vdisize) + "GBs",
+					'Size':		sizeof_fmt(vdisize),
 					'SR UUID':	session.xenapi.SR.get_uuid(vdisr),
 					'SR Name':	session.xenapi.SR.get_name_label(vdisr),
 					'SR Type':	session.xenapi.SR.get_type(vdisr),
@@ -66,7 +65,7 @@ def getvdidata(session):
 			data = {
 				'UUID':		session.xenapi.VDI.get_uuid(vdi),
 				'Name':		session.xenapi.VDI.get_name_label(vdi),
-				'Size':		str(vdisize) + "GBs",
+				'Size':		sizeof_fmt(vdisize),
 				'SR UUID':	session.xenapi.SR.get_uuid(vdisr),
 				'SR Name':	session.xenapi.SR.get_name_label(vdisr),
 				'SR Type':	session.xenapi.SR.get_type(vdisr),
@@ -80,7 +79,7 @@ def getvdidata(session):
 			data = {
 				'UUID':		session.xenapi.VDI.get_uuid(vdi),
 				'Name':		session.xenapi.VDI.get_name_label(vdi),
-				'Size':		str(vdisize) + "GBs",
+				'Size':		sizeof_fmt(vdisize),
 				'SR UUID':	session.xenapi.SR.get_uuid(vdisr),
 				'SR Name':	session.xenapi.SR.get_name_label(vdisr),
 				'SR Type':	session.xenapi.SR.get_type(vdisr),
