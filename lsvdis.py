@@ -17,7 +17,7 @@ from XAPIlib import *
 def syntax():
 	print "lsvdis version 0.1.1"
 	print ""
-	print "Syntax: lshosts [options]"
+	print "Syntax: lsvdis [options]"
 	print " -h This help text"
 	print " -u - shows VDI UUID, Size, SR UUID, SR type, VM UUID and VM device"
 	print "	-n - shows VDI Name, Size, SR Name, SR type, VM Name and VM device"
@@ -42,7 +42,7 @@ def getvdidata(session):
 		vdisr = session.xenapi.VDI.get_SR(vdi)
 		vdisize = float(session.xenapi.VDI.get_virtual_size(vdi))
 		
-		# if vdi has more than one vbd, loop through vbd's and create a list for each vbd
+		# if vdi has more than one vbd, loop through vbd's and create an entry for each vbd
 		if len(vdivbds) > 1:
 		
 			for vbd in vdivbds:
