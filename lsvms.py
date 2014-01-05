@@ -43,11 +43,11 @@ def getvmdata(session):
             vmhostref = session.xenapi.VM.get_resident_on(vm)
 
             data = {
-                'UUID' = session.xenapi.VM.get_uuid(vm)
-                'Name' = session.xenapi.VM.get_name_label(vm)
-                'Host UUID' = session.xenapi.host.get_uuid(vmhostref) # fix this
-                'Host Name' = session.xenapi.host.get_name_label(vmhostref)
-                'Dom ID' = session.xenapi.VM.get_domid(vm) # finish this
+                'UUID' = session.xenapi.VM.get_uuid(vm),
+                'Name' = session.xenapi.VM.get_name_label(vm),
+                'Host UUID' = session.xenapi.host.get_uuid(vmhostref), # fix this
+                'Host Name' = session.xenapi.host.get_name_label(vmhostref),
+                'Dom ID' = session.xenapi.VM.get_domid(vm), # finish this
                 'Status' = session.xenapi.VM.get_power_state(vm)   
             }
     return vmArray
