@@ -30,10 +30,8 @@ def syntax():
 
 
 def getvmdata(session):
-	
     vmArray = []   
     vms = session.xenapi.VM.get_all()
-    i = 0
     for vm in vms:
         if session.xenapi.VM.get_is_a_template(vm):
             continue
@@ -42,27 +40,18 @@ def getvmdata(session):
         elif session.xenapi.VM.get_is_a_snapshot(vm):
             continue
         else:
-            
+            vmhostref = session.xenapi.VM.get_resident_on(vm)
 
             data = {
                 'UUID' = session.xenapi.VM.get_uuid(vm)
                 'Name' = session.xenapi.VM.get_name_label(vm)
-                'Host UUID' = session.xenapi.VM.get_resident_
-
-
-
-
-
+                'Host UUID' = session.xenapi.host.get_uuid(vmhostref) # fix this
+                'Host Name' = session.xenapi.host.get_name_label(vmhostref)
+                'Dom ID' = session.xenapi.VM.get_domid(vm) # finish this
+                'Status' = session.xenapi.VM.get_power_state(vm)   
             }
-
-
-
-
-
     return vmArray
                 
-
-
 def main():
 	session = XenAPI.xapi_local()
 	session.xenapi.login_with_password("", "")
