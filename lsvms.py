@@ -5,6 +5,9 @@
 # Date: 1/2/2014 
 # Ver. 0.0.1
 # Author: Matthew Spah
+# Date: 1/3/2014
+# Ver. 0.0.2
+# Displaying collumned values now
 
 import XenAPI
 import sys, getopt

@@ -8,6 +8,10 @@
 # Date: 12/26/2013
 # Ver. 0.0.2
 # Author: Matthew Spah
+# Date: 1/3/2013
+# Ver. 0.0.3
+# Added comments 
+# Author: Matthew Spah
 
 
 import XenAPI
