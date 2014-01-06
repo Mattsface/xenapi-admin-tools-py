@@ -30,8 +30,9 @@ def syntax():
 
 
 def getvmdata(session):
-    vmArray = []   
+    vmArray = []
     vms = session.xenapi.VM.get_all()
+
     for vm in vms:
         if session.xenapi.VM.get_is_a_template(vm):
             continue
@@ -42,23 +43,74 @@ def getvmdata(session):
         else:
             vmhostref = session.xenapi.VM.get_resident_on(vm)
 
+            if vmhostref == "OpaqueRef:NULL":
+                Hostuuid = "-"
+                Hostname = "-"
+            else:
+                Hostuuid = session.xenapi.host.get_uuid(vmhostref)
+                Hostname = session.xenapi.host.get_name_label(vmhostref)
+
             data = {
-                'UUID' = session.xenapi.VM.get_uuid(vm),
-                'Name' = session.xenapi.VM.get_name_label(vm),
-                'Host UUID' = session.xenapi.host.get_uuid(vmhostref), # fix this
-                'Host Name' = session.xenapi.host.get_name_label(vmhostref),
-                'Dom ID' = session.xenapi.VM.get_domid(vm), # finish this
-                'Status' = session.xenapi.VM.get_power_state(vm)   
+                'UUID': session.xenapi.VM.get_uuid(vm),
+                'Name': session.xenapi.VM.get_name_label(vm),
+                'Host UUID': Hostuuid, 
+                'Host Name': Hostname,
+                'Dom ID': session.xenapi.VM.get_domid(vm), 
+                'Status': session.xenapi.VM.get_power_state(vm)
             }
+
+            vmArray.append(data)
+            
     return vmArray
-                
+
+def defineheadings(mode):
+    if mode == "uuid":
+        headings = ("UUID", "Status", "Dom ID", "Host UUID")
+    elif mode == "both":
+        headings = ("Name", "Status", "UUID", "Dom ID", "Host Name", "Host UUID")
+    elif mode == "name":
+        headings = ("Name", "Status", "Dom ID", "Host Name")
+    elif mode == "mix":
+        headings = ("Name", "Status", "UUID", "Dom ID", "Host UUID")
+
+    return headings
+
 def main():
-	session = XenAPI.xapi_local()
-	session.xenapi.login_with_password("", "")
+    try:
+        myopts, args = getopt.getopt(sys.argv[1:], "hcubnmw:",["help", "csv", "uuid", "both", "name", "mix", "wspace"])
+    except getopt.GetoptError:
+        print "Unknown options"
+        syntax()
+        sys.exit(1)
+    minspace = 3
+    CSV = False
+    mode = "name"
+    for opt, arg in myopts:
+        if opt in ("-h", "--help"):
+            syntax()
+            sys.exit(1)
+        elif opt in ("-u", "--uuid"):
+            mode = "uuid"
+        elif opt in ("-b", "--both"):
+            mode = "both"
+        elif opt in ("-n", "--name"):
+            mode = "name"
+        elif opt in ("-m", "--mix"):
+            mode = "mix"
+        elif opt in ("-c", "--csv"):
+            CSV = True
+        elif opt in ("-w", "--wspace"):
+            minspace = int(arg)
 
-	vmdata = getvmdata(session)
+    session = XenAPI.xapi_local()
 
-	print vmdata
+    session.xenapi.login_with_password("", "")
+    vmdata = getvmdata(session)
+
+    headings = defineheadings(mode)
+
+    print formatdarray(vmdata, headings, CSV, minspace)
+
 	
 
 main()
