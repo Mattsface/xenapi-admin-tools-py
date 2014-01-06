@@ -36,8 +36,11 @@ def getvdidata(session):
 	vdis = session.xenapi.VDI.get_all()
 	vdiArray = []
 	
+
+	# loop through each vdi
 	for vdi in vdis:
 		
+		# grab the VDI's VBD, VDI's sr, and grabbing the size of the VDI in bytes
 		vdivbds = session.xenapi.VDI.get_VBDs(vdi)
 		vdisr = session.xenapi.VDI.get_SR(vdi)
 		vdisize = float(session.xenapi.VDI.get_virtual_size(vdi))
@@ -111,7 +114,7 @@ def main():
 		sys.exit(1)
 	minspace = 3
 	CSV = False
-	mode = "name"
+	mode = "uuid"
 	for opt, arg in myopts:
 		if opt in ("-h", "--help"):
 			syntax()
@@ -137,7 +140,7 @@ def main():
 	
 	print formatdarray(vdidata, headings, CSV, minspace)
 	
-
+	session.xenapi.session.logout()
 
 
 main()

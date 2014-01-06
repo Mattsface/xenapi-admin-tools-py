@@ -33,6 +33,7 @@ def getvmdata(session):
     vmArray = []
     vms = session.xenapi.VM.get_all()
 
+    # Loop through each VM in vms, we'll skip it if the vm is a template, control domain, or a snapshot
     for vm in vms:
         if session.xenapi.VM.get_is_a_template(vm):
             continue
@@ -43,6 +44,7 @@ def getvmdata(session):
         else:
             vmhostref = session.xenapi.VM.get_resident_on(vm)
 
+            # if no host is present use "-"
             if vmhostref == "OpaqueRef:NULL":
                 Hostuuid = "-"
                 Hostname = "-"
@@ -84,7 +86,8 @@ def main():
         sys.exit(1)
     minspace = 3
     CSV = False
-    mode = "name"
+    mode = "uuids
+    "
     for opt, arg in myopts:
         if opt in ("-h", "--help"):
             syntax()
@@ -105,12 +108,14 @@ def main():
     session = XenAPI.xapi_local()
 
     session.xenapi.login_with_password("", "")
+
     vmdata = getvmdata(session)
 
     headings = defineheadings(mode)
 
     print formatdarray(vmdata, headings, CSV, minspace)
 
-	
+	session.xenapi.session.logout()
+
 
 main()
