@@ -51,7 +51,6 @@ def getvdidata(session):
 		
 		# if vdi has more than one vbd, loop through vbd's and create an entry for each vbd
 		if len(vdivbds) > 1:
-		
 			for vbd in vdivbds:
 				vdivm = session.xenapi.VBD.get_VM(vbd)
 				data = {
@@ -66,7 +65,6 @@ def getvdidata(session):
 					'VM Dev':	session.xenapi.VBD.get_userdevice(vbd),
 				}
 				vdiArray.append(data)
-				
 		elif len(vdivbds) == 1:
 			vdivm = session.xenapi.VBD.get_VM(vdivbds[0])
 			data = {
@@ -81,7 +79,6 @@ def getvdidata(session):
 				'VM Dev':	session.xenapi.VBD.get_userdevice(vdivbds[0])
 			}
 			vdiArray.append(data)
-
 		else:
 			data = {
 				'UUID':		session.xenapi.VDI.get_uuid(vdi),
@@ -95,7 +92,7 @@ def getvdidata(session):
 				'VM Dev':	"-",
 			}
 			vdiArray.append(data)
-
+			
 	return vdiArray
 
 def defineheadings(mode):
