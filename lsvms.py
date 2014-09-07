@@ -89,8 +89,7 @@ def main():
         sys.exit(1)
     minspace = 3
     CSV = False
-    mode = "uuids
-    "
+    mode = "uuids"
     for opt, arg in myopts:
         if opt in ("-h", "--help"):
             syntax()
