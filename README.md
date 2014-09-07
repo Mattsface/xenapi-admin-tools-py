@@ -5,7 +5,7 @@ Currently the only way of installing xenapi-admin-tools-py is by using git clone
         
 c        lscores
 x        lshosts
-open     :ewlsnetworks
+open     lsnetworks
 open     lstemplates     
 x        lsvdis 
 x        lsvmsi
