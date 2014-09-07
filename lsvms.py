@@ -117,7 +117,7 @@ def main():
 
     print formatdarray(vmdata, headings, CSV, minspace)
 
-	session.xenapi.session.logout()
+    session.xenapi.session.logout()
 
 
 main()
