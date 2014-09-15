@@ -5,7 +5,7 @@
 
 import XenAPI
 import sys, getopt
-import XAPIlib import *
+from XAPIlib import *
 
 
 
@@ -22,18 +22,43 @@ def systax():
         print ""
 
 
+def defineheadings(mode):
+	if mode == "names":
+		headings = ('Host', 'CPU Core', 'Utilization')
+	elif mode == "uuid":
+		headings = ('Host UUID', 'CPU UUID', 'Utilization')
+	return headings 
+	
 
-def getCPUdata(session)
 
 
+def getcpus(session, hosts):
+	hostscpu = {}
+	for host in hosts:
+		hostname = session.xenapi.host.get_hostname(host)
+		hostscpu[hostname] = session.xenapi.host.get_host_CPUs(host)
+
+	return hostscpu
 
 
+def gethosts(session):
+	hosts = session.xenapi.host.get_all()
+	return hosts
+
+def gethostcpus(session, cpus):
+	for x in cpus:
+		print x
+		for cpu in cpus[x]:
+			print session.xenapi.host_cpu.get_number(cpu)
+			print session.xenapi.host_cpu.get_utilisation(cpu)
+			 	
 
 
 def main():
-        try:
-                myopts, args = getopt.getopt(sys.argv[1:], "huncw:",["help", "follow", "names", "uuid"
-        expect getopt.GetoptError:
+   
+	try:
+                myopts, args = getopt.getopt(sys.argv[1:], "huncw:",["help", "follow", "names", "uuid"])
+	except getopt.GetoptError:
                 print "Unknown options"
                 systax()
                 sys.exit(1)
@@ -54,11 +79,14 @@ def main():
                         mode = "uuid"
 
 
+        session = XenAPI.xapi_local()
 
-         session = XenAPI.xapi_local()
-
-         session.xenapi.login_with_password("", "")
-
+        session.xenapi.login_with_password("", "")
 
 
+	hosts = gethosts(session)
+	hostscpus = getcpus(session, hosts)
+	gethostcpus(session, hostscpus)
 
+
+main()
